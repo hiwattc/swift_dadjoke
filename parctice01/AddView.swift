@@ -9,8 +9,43 @@
 import SwiftUI
 
 struct AddView: View {
+    
+    @Environment(\.managedObjectContext) var moc
+    @Environment(\.presentationMode) var presentationMode
+    
+    @State private var setup = ""
+    @State private var punchline = ""
+    @State private var rating = "Silence"
+    let ratings = ["Sob","Sigh","Smirk","Silence"]
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationView{
+            //List{
+            Form{
+                Section{
+                    TextField("Setup", text: $setup)
+                    TextField("Puchline", text: $punchline)
+                    Picker("Rating",selection:$rating){
+                        ForEach(ratings, id: \.self){
+                            rating in Text(rating)
+                        }
+                    }
+                }
+                Button("Add joke"){
+                    let newJoke = Joke(context:self.moc)
+                    newJoke.setup = self.setup
+                    newJoke.punchline = self.punchline
+                    newJoke.rating = self.rating
+                    
+                    do{
+                        try self.moc.save()
+                        self.presentationMode.wrappedValue.dismiss()
+                    }catch{
+                        print("whoops \(error.localizedDescription)")
+                    }
+                }
+            }.navigationBarTitle("New Joke")
+        }
     }
 }
 
